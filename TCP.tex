@@ -1,0 +1,127 @@
+\chapter{TCP}
+
+\section{Key Differences Between TCP Tahoe and TCP Reno}
+\begin{itemize}
+    \item \textbf{TCP Tahoe}: 
+    \begin{itemize}
+        \item Implements basic congestion control mechanisms including Slow Start, Congestion Avoidance, and Fast Retransmit.
+        \item Upon detecting three duplicate ACKs, it reduces the congestion window to one segment (Fast Retransmit) and initiates a Slow Start.
+    \end{itemize}
+    \item \textbf{TCP Reno}:
+    \begin{itemize}
+        \item Inherits all features from TCP Tahoe but adds Fast Recovery.
+        \item Upon detecting three duplicate ACKs, it retransmits the missing segment (Fast Retransmit) and instead of reducing the congestion window to one segment, it reduces it to half and enters Fast Recovery.
+        \item In Fast Recovery, the congestion window is increased for each additional duplicate ACK received, allowing for better performance during packet recovery.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+\section{Overview of the TCP Refactoring}
+
+\subsection{Comparison with Old TCP Implementation}
+\begin{itemize}
+    \vspace{0.5cm}
+    \item \textbf{Modularity}:
+    \begin{itemize}
+        \item The refactored implementation separates common functionalities and specific features of each TCP variant into different classes.
+        \item The old implementation had a single class handling all aspects of TCP, making it less modular and harder to manage.
+    \end{itemize}
+    \vspace{0.3cm}
+    \item \textbf{Extensibility}:
+    \begin{itemize}
+        \item The refactored implementation allows for easy addition of new TCP variants by inheriting from the base class and implementing specific behaviors.
+        \item The old implementation required modifications to the existing codebase to add new features, increasing the risk of introducing bugs.
+    \end{itemize}
+    \vspace{0.3cm}
+    \item \textbf{Maintainability}:
+    \begin{itemize}
+        \item In the refactored implementation, common functionalities are centralized in the base class, reducing code duplication and making it easier to apply changes across all TCP variants.
+    \end{itemize}
+    \vspace{0.3cm}
+    \item \textbf{Versatility}:
+    \begin{itemize}
+        \item By having three different variations of TCP, there are new possibilities for the experiments taken at the lab - each with different tasks and features to be implemented by the students.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+\subsection*{\Large \textbf{Changes}}
+\subsection{Common Base Class (\texttt{L4\_TCP} and \texttt{L4\_TCP\_impl})}
+The base class \texttt{L4\_TCP\_impl} contains common functionalities for TCP. Here's an overview of its main methods:
+
+\subsubsection{\texttt{\large pr\_init()}}
+\begin{itemize}
+    \item Initializes the TCP protocol.
+    \item Sets up necessary structures and initial states required for TCP operations.
+    \item Prepares the environment for TCP communication by configuring protocol parameters and states.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_fasttimo()}}
+\begin{itemize}
+    \item Handles tasks that need to be performed at fast intervals.
+    \item Manages delayed acknowledgments (ACKs) to optimize the use of network resources.
+    \item Ensures that ACKs are sent promptly when needed.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_slowtimo()}}
+\begin{itemize}
+    \item Manages tasks that need to be performed at slower intervals.
+    \item Handles retransmission timeouts and other TCP timers such as the persist timer and keepalive timer.
+    \item Ensures that TCP connections are maintained properly over time, handling any necessary retransmissions and time-based operations.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_usrreq()}}
+\begin{itemize}
+    \item Handles various user requests related to TCP operations.
+    \item Manages opening and closing connections, binding sockets, and configuring TCP settings.
+    \item Serves as the interface between the user-level operations and the TCP implementation, processing and fulfilling user requests.
+\end{itemize}
+
+\subsection{TCP Tahoe (\texttt{tcp\_tahoe})}
+TCP Tahoe implements basic congestion control mechanisms. Here are its main methods:
+
+\subsubsection{\texttt{\large tcp\_dupacks\_handler(tcpcb* tp, tcp\_seq\& seq)}}
+\begin{itemize}
+    \item Handles duplicate acknowledgments (ACKs).
+    \item When three duplicate ACKs are received, it triggers the Fast Retransmit mechanism.
+    \item Retransmits the missing segment without waiting for the retransmission timer to expire.
+    \item Helps in quickly recovering lost packets and reducing latency.
+\end{itemize}
+
+\subsubsection{\texttt{\large tcp\_congestion\_control\_handler(tcpcb* tp)}}
+\begin{itemize}
+    \item Manages congestion control using Slow Start and Congestion Avoidance.
+    \item In Slow Start, the congestion window (cwnd) increases exponentially with each acknowledgment received, until it reaches a threshold (ssthresh).
+    \item After the threshold is reached, Congestion Avoidance takes over, increasing the congestion window linearly to avoid overwhelming the network.
+\end{itemize}
+
+\subsubsection{\texttt{\large tcp\_rto\_timer\_handler(tcpcb* tp)}}
+\begin{itemize}
+    \item Handles retransmission timeouts by doubling the retransmission timeout value.
+    \item Resets the congestion window to one segment.
+    \item Sets the slow start threshold to half of the current congestion window size.
+    \item Helps the network recover from packet loss more gracefully.
+\end{itemize}
+
+\subsection{TCP Reno (\texttt{tcp\_reno})}
+TCP Reno builds upon TCP Tahoe by adding the Fast Recovery mechanism. Here are its main methods:
+
+\subsubsection{\texttt{\large tcp\_dupacks\_handler(tcpcb* tp, tcp\_seq\& seq)}}
+\begin{itemize}
+    \item Handles duplicate acknowledgments similarly to TCP Tahoe.
+    \item Implements Fast Recovery.
+    \item Upon detecting three duplicate ACKs, retransmits the missing segment.
+    \item Enters Fast Recovery instead of resetting the congestion window to one segment.
+    \item In Fast Recovery, the congestion window is reduced by half, and additional duplicate ACKs received increase the congestion window slightly.
+    \item Allows for better performance during recovery.
+\end{itemize}
+
+\subsubsection{\texttt{\large tcp\_rto\_timer\_handler(tcpcb* tp)}}
+\begin{itemize}
+    \item Handles retransmission timeouts with Fast Recovery logic.
+    \item Applies the same logic as Tahoe for doubling the retransmission timeout and adjusting the congestion window.
+    \item Incorporates Fast Recovery by not reducing the congestion window as drastically.
+    \item Allows for quicker recovery from packet loss and better overall performance.
+\end{itemize}

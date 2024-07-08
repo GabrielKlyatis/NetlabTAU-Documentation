@@ -1,0 +1,109 @@
+\chapter{UDP}
+
+\section{Overview of the UDP Implementation}
+
+\subsection{Common Base Class (\texttt{L4\_UDP} and \texttt{L4\_UDP\_impl})}
+The base class \texttt{L4\_UDP\_impl} contains common functionalities for UDP. Here's an overview of its main methods:
+
+\subsubsection{\texttt{\large pr\_init()}}
+\begin{itemize}
+    \item Initializes the UDP protocol.
+    \item Sets up necessary structures and initial states required for UDP operations.
+    \item Allocates resources, initializes data structures, and configures default settings.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_input()}}
+\begin{itemize}
+    \item Handles incoming UDP packets.
+    \item Processes packets received from the network.
+    \item Verifies checksums to ensure data integrity.
+    \item Passes valid data to the socket layer.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_output()}}
+\begin{itemize}
+    \item Prepares and sends outgoing UDP packets.
+    \item Constructs the UDP header.
+    \item Calculates the checksum to detect transmission errors.
+    \item Sends the packet to the network.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_usrreq()}}
+\begin{itemize}
+    \item Handles various user requests related to UDP operations.
+    \item Manages opening and closing sockets, binding to ports, and sending data.
+    \item Serves as the interface between user-level operations and the UDP implementation.
+    \item Processes and fulfills user requests, ensuring correct socket configuration.
+\end{itemize}
+
+\subsubsection{\texttt{\large udp\_attach()}}
+\begin{itemize}
+    \item Attaches a UDP control block to a socket.
+    \item Associates a socket with the necessary protocol control structures.
+    \item Sets up the control block with initial parameters and links it to the socket.
+\end{itemize}
+
+\subsubsection{\texttt{\large udp\_output()}}
+\begin{itemize}
+    \item Manages the preparation and transmission of UDP packets.
+    \item Constructs the packet and sets appropriate headers.
+    \item Calculates the checksum and sends the packet to the network layer.
+    \item Ensures correct encapsulation and transmission according to UDP standards.
+\end{itemize}
+
+\subsubsection{\texttt{\large udp\_template()}}
+\begin{itemize}
+    \item Creates a template for sending UDP packets on a connection.
+    \item Allocates a buffer for a skeletal UDP/IP header.
+    \item Minimizes the amount of work necessary for connection use.
+\end{itemize}
+
+\subsubsection{\texttt{\large insque()}}
+\begin{itemize}
+    \item Inserts an object into a queue.
+    \item Manages linked lists of protocol control blocks.
+    \item Ensures correct linking of the object to previous and next objects in the list.
+\end{itemize}
+
+\subsubsection{\texttt{\large remque()}}
+\begin{itemize}
+    \item Removes an object from a queue without deleting it.
+    \item Updates pointers of previous and next objects to bypass the removed object.
+    \item Maintains the integrity of the linked list.
+\end{itemize}
+
+\subsubsection{\texttt{\large in\_pcblookup()}}
+\begin{itemize}
+    \item Looks up protocol control blocks (PCBs) based on criteria like source and destination addresses and ports.
+    \item Essential for locating existing connections.
+    \item Ensures packets are delivered to the correct endpoint.
+\end{itemize}
+
+\section{Implementation Details of L4\_UDP\_Impl}
+
+\subsection{UDP Header (\texttt{udphdr})}
+\begin{itemize}
+    \item Defines the header of a UDP packet.
+    \item Includes source and destination ports, length, and checksum.
+    \item Ensures necessary information for proper delivery and error checking.
+\end{itemize}
+
+\subsection{UDP Pseudo Header (\texttt{udpiphdr})}
+\begin{itemize}
+    \item Combines UDP and IP headers to provide a complete packet structure.
+    \item Includes source and destination IP addresses, protocol information, and the UDP header.
+\end{itemize}
+
+\subsection{UDP Control Block (\texttt{udpcb})}
+\begin{itemize}
+    \item Manages control information for each UDP connection.
+    \item Includes functions for initializing, attaching, and managing the state of UDP connections.
+    \item Ensures proper maintenance and handling of incoming and outgoing packets.
+\end{itemize}
+
+\subsection{Logger (\texttt{udpcb\_logger})}
+\begin{itemize}
+    \item Handles logging of UDP control block activities.
+    \item Records events and state changes for debugging and analysis.
+    \item Aids in identifying issues and optimizing performance.
+\end{itemize}

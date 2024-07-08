@@ -1,0 +1,91 @@
+\chapter{IP Fragmenation}
+\section{Overview of the IP Fragmentation Implementation}
+
+\subsection{Common Base Class (\texttt{L3} and \texttt{L3\_impl})}
+The base class \texttt{L3\_impl} contains common functionalities for IP operations, including fragmentation. Here's an overview of its main methods:
+
+\subsubsection{\texttt{\large pr\_init()}}
+\begin{itemize}
+    \item Initializes the IP protocol.
+    \item Sets up necessary structures and initial states required for IP operations.
+    \item Allocates resources, initializes data structures, and configures default settings.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_input()}}
+\begin{itemize}
+    \item Handles incoming IP packets.
+    \item Processes packets received from the network.
+    \item Manages the reassembly of fragmented packets.
+    \item Verifies checksums to ensure data integrity.
+    \item Passes valid data to the appropriate layer.
+\end{itemize}
+
+\subsubsection{\texttt{\large pr\_output()}}
+\begin{itemize}
+    \item Prepares and sends outgoing IP packets.
+    \item Constructs the IP header.
+    \item Determines if the packet needs to be fragmented based on the MTU.
+    \item Splits the packet into fragments if necessary.
+    \item Sends the fragments to the network.
+\end{itemize}
+
+\subsubsection{\texttt{\Large\ \textbf{ip\_fragment()}}}
+\begin{itemize}
+    \item Manages the fragmentation of IP packets.
+    \item Splits the packet into smaller fragments that fit within the MTU.
+    \item Adds appropriate headers to each fragment.
+    \item Ensures correct ordering and reassembly by setting fragment offsets.
+\end{itemize}
+
+\subsubsection{\texttt{\Large \textbf{ip\_reassembly()}}}
+\begin{itemize}
+    \item Handles the reassembly of incoming IP fragments.
+    \item Collects fragments of a packet as they arrive.
+    \item Checks for the completeness of the packet.
+    \item Reconstructs the original packet from the fragments.
+    \item Passes the reassembled packet to the upper layer.
+\end{itemize}
+
+\subsubsection{\texttt{\large ip\_output()}}
+\begin{itemize}
+    \item Manages the preparation and transmission of IP packets.
+    \item Constructs the packet and sets appropriate headers.
+    \item Calculates the checksum to detect transmission errors.
+    \item Determines if fragmentation is needed and handles it.
+    \item Sends the packet or its fragments to the network layer.
+\end{itemize}
+
+\section{Implementation Details of L3\_Impl}
+
+\subsection{IP Header (\texttt{iphdr})}
+\begin{itemize}
+    \item Defines the header of an IP packet.
+    \item Includes fields such as version, header length, type of service, total length, identification, fragment offset, time to live, protocol, checksum, and source and destination addresses.
+    \item Ensures necessary information for proper delivery and error checking.
+\end{itemize}
+
+\subsection{IP Fragment (\texttt{ip\_fragment})}
+\begin{itemize}
+    \item Represents an individual IP fragment.
+    \item Contains a pointer to the fragment data and a pointer to the next fragment.
+    \item Used to manage the linked list of fragments during reassembly.
+\end{itemize}
+
+\subsection{IP Reassembly Queue (\texttt{ipq})}
+\begin{itemize}
+    \item Manages the queue of incoming IP fragments.
+    \item Includes fields for time to live, protocol, sequence ID, pointers to the next and previous fragments, and the source and destination addresses.
+    \item Ensures proper reassembly of fragmented packets.
+\end{itemize}
+
+\section{Usage in UDP}
+
+In the context of UDP, IP fragmentation is essential when a UDP datagram exceeds the MTU. Since UDP is a connectionless protocol, it relies on the underlying IP layer for fragmentation and reassembly. Here’s how the process works:
+
+\subsection{Sending a UDP Datagram}
+
+When a UDP datagram larger than the MTU is sent, the IP layer will fragment the datagram into smaller packets. Each fragment will have its own IP header, and the fragment offset field will indicate the fragment offset. The \texttt{pr\_output()} function handles this process.
+
+\subsection{Receiving a UDP Datagram}
+
+When the fragments of a UDP datagram are received, the IP layer will reassemble them into the original datagram. The \texttt{pr\_input()} function handles this process, collecting all fragments and assembling them in the correct order. Once all fragments are received and reassembled, the complete UDP datagram is passed to the upper layer for processing.

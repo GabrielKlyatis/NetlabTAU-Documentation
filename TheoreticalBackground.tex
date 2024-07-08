@@ -1,0 +1,187 @@
+\chapter{Theoretical Background}
+
+In this section, we describe the theoretical background and relevant algorithms related to the network protocols we implemented. The protocols include IP Fragmentation, UDP, TCP (Tahoe, Reno, and base), TLS and HTTP (specifically the GET and POST methods).
+
+\section{IP Fragmentation}
+IP fragmentation is a process used in computer networks to break down large packets into smaller fragments so that they can be transmitted over networks with varying maximum transmission unit (MTU) sizes. When an IP packet exceeds the MTU of a network segment, it is fragmented into smaller packets that are reassembled at the destination. This process ensures that large packets can traverse networks with different MTU limits.
+
+\begin{itemize}
+    \item \textbf{Fragmentation}: The process of dividing a large IP packet into smaller fragments.
+    \item \textbf{Reassembly}: The process of combining IP fragments back into the original packet at the destination.
+    \item \textbf{MTU}: The maximum size of a packet that can be transmitted over a network segment.
+    \item \textbf{Efficient Transmission}: Ensures packets can be transmitted over networks with different MTUs without loss.
+\end{itemize}
+
+
+\subsection{IP Header Fields Involved in Fragmentation}
+Several fields in the IP header are critical for fragmentation and reassembly:
+
+\begin{itemize}
+    \item \textbf{Identification (ID)}: A unique value used to identify fragments that belong to the same original packet.
+    \item \textbf{Fragment Offset}: Indicates the position of a fragment's data within the original packet. It helps in reassembling the fragments in the correct order.
+    \item \textbf{More Fragments (MF) Flag}: Indicates if a fragment is the last one. If the flag is set, more fragments follow; if not, it is the last fragment.
+    \item \textbf{Don't Fragment (DF) Flag}: If set, it instructs routers not to fragment the packet. If the packet cannot be delivered without fragmentation, it is discarded.
+\end{itemize}
+
+\section{UDP}
+User Datagram Protocol (UDP) provides a connectionless, unreliable service for sending datagrams between applications. Unlike TCP, UDP does not establish a connection before sending data and does not guarantee delivery, order, or error correction. This makes it suitable for applications requiring fast, efficient transmission with low overhead. Key concepts include:
+\begin{itemize}
+    \item \textbf{Connectionless Communication}: Each datagram is sent independently.
+    \item \textbf{Low Overhead}: Minimalistic design with a small header.
+    \item \textbf{No Error Correction}: The application must handle lost or corrupted datagrams.
+    \item \textbf{Real-Time Applications}: Suitable for streaming audio and video, online gaming, and real-time communications.
+\end{itemize}
+
+\subsection{UDP Header Structure}
+The UDP header consists of four fields, each 2 bytes long:
+\begin{itemize}
+    \item \textbf{Source Port}: Identifies the sender's port.
+    \item \textbf{Destination Port}: Identifies the receiver's port.
+    \item \textbf{Length}: Specifies the length of the UDP header and data.
+    \item \textbf{Checksum}: Used for error-checking of the header and data.
+\end{itemize}
+
+\subsection{UDP Communication Process}
+\begin{enumerate}
+    \item \textbf{Packet Creation}: The application creates a UDP packet and includes the data to be sent.
+    \item \textbf{Adding Headers}: The UDP header is added to the packet.
+    \item \textbf{Sending Data}: The packet is sent to the destination IP address and port number specified.
+    \item \textbf{Receiving Data}: The receiver reads the packet, processes the header, and passes the data to the application.
+\end{enumerate}
+
+\newpage
+
+\section{TCP}
+Transmission Control Protocol (TCP) provides reliable, ordered, and error-checked delivery of data between applications. It includes mechanisms for connection establishment, data transfer, flow control, error detection and correction, congestion control, and connection termination. Key concepts include:
+\begin{itemize}
+    \item \textbf{Connection Establishment}: Three-way handshake to establish a connection.
+    \item \textbf{Data Transfer}: Segmentation and sequencing of data.
+    \item \textbf{Flow Control}: Sliding window mechanism.
+    \item \textbf{Error Detection and Correction}: Checksums and retransmissions.
+    \item \textbf{Congestion Control}: Adjusting data transmission rate based on network conditions.
+    \item \textbf{Connection Termination}: Four-step process to ensure all data is transmitted and acknowledged.
+\end{itemize}
+
+\subsection{TCP Header Structure}
+The TCP header consists of several fields, including:
+\begin{itemize}
+    \item \textbf{Source Port}: Identifies the sender's port.
+    \item \textbf{Destination Port}: Identifies the receiver's port.
+    \item \textbf{Sequence Number}: Indicates the position of the first byte of data in the segment.
+    \item \textbf{Acknowledgment Number}: Indicates the next byte expected by the receiver.
+    \item \textbf{Data Offset}: Specifies the size of the TCP header.
+    \item \textbf{Control Flags}: Includes flags such as SYN, ACK, FIN, and others that control the state of the connection.
+    \item \textbf{Window Size}: Specifies the size of the sender's receive window.
+    \item \textbf{Checksum}: Used for error-checking of the header and data.
+    \item \textbf{Urgent Pointer}: Indicates the end of urgent data.
+    \item \textbf{Options}: Optional fields that provide additional functionality.
+\end{itemize}
+
+\subsection{TCP Communication Process}
+\begin{enumerate}
+    \item \textbf{Connection Establishment}: TCP uses a three-way handshake to establish a connection between the sender and receiver.
+    \begin{itemize}
+        \item \textbf{SYN}: The client sends a SYN packet to the server.
+        \item \textbf{SYN-ACK}: The server responds with a SYN-ACK packet.
+        \item \textbf{ACK}: The client sends an ACK packet to establish the connection.
+    \end{itemize}
+    \item \textbf{Data Transfer}: During data transfer, TCP segments the data into smaller packets and assigns sequence numbers to each segment. The receiver acknowledges the receipt of segments, and TCP uses these acknowledgments to ensure that all data is delivered correctly and in order.
+    \begin{itemize}
+        \item \textbf{Flow Control}: TCP implements flow control using a sliding window mechanism. This ensures that the sender does not overwhelm the receiver by sending too much data at once.
+        \item \textbf{Error Detection and Correction}: TCP uses checksums to detect errors in the transmitted segments. If a segment is corrupted or lost, TCP retransmits the affected segment.
+        \item \textbf{Congestion Control}: TCP adjusts the rate of data transmission based on network conditions to prevent congestion.
+    \end{itemize}
+    \item \textbf{Connection Termination}: Once the data transfer is complete, TCP terminates the connection using a four-step process to ensure that all data is successfully transmitted and acknowledged.
+    \begin{itemize}
+        \item \textbf{FIN}: The client sends a FIN packet to the server.
+        \item \textbf{ACK}: The server responds with an ACK packet.
+        \item \textbf{FIN}: The server sends a FIN packet to the client.
+        \item \textbf{ACK}: The client responds with an ACK packet to terminate the connection.
+    \end{itemize}
+\end{enumerate}
+
+\section{TCP Tahoe}
+TCP Tahoe is an early version of TCP congestion control algorithms. It introduced several key mechanisms to handle congestion in the network:
+
+\begin{itemize}
+    \item \textbf{Slow Start}: At the beginning of a connection or after a timeout, TCP Tahoe starts with a small congestion window (cwnd) and increases it exponentially with each acknowledgment received. This continues until a threshold (ssthresh) is reached.
+    \item \textbf{Congestion Avoidance}: Once the slow start threshold is reached, the congestion window increases linearly, which prevents overwhelming the network.
+    \item \textbf{Fast Retransmit}: Upon receiving three duplicate acknowledgments (ACKs), TCP Tahoe assumes a packet loss and retransmits the missing segment without waiting for the retransmission timer to expire.
+    \item \textbf{Retransmission Timeout (RTO)}: If an acknowledgment is not received within a certain period, TCP Tahoe retransmits the segment and doubles the RTO value, reducing the congestion window to one segment and restarting slow start.
+\end{itemize}
+
+\section{TCP Reno}
+TCP Reno builds upon the foundations of TCP Tahoe by introducing an additional mechanism called Fast Recovery, which improves the performance during packet loss recovery:
+
+\begin{itemize}
+    \item \textbf{Fast Recovery}: Instead of reducing the congestion window to one segment upon detecting three duplicate ACKs (as in Fast Retransmit), TCP Reno reduces the congestion window by half and enters Fast Recovery mode. In this mode, the congestion window increases by one segment for each additional duplicate ACK received, allowing for faster recovery while avoiding network congestion.
+    \item \textbf{Other Mechanisms}: TCP Reno retains the Slow Start, Congestion Avoidance, and Fast Retransmit mechanisms from TCP Tahoe.
+\end{itemize}
+
+
+\newpage
+
+\section{Transport Layer Security (TLS)}
+
+Transport Layer Security (TLS) is a cryptographic protocol designed to provide secure communication over a computer network. TLS ensures that data transmitted between clients and servers remains confidential and integral. TLS v1.2, the version implemented in our project, introduces significant improvements over its predecessors, enhancing both security and performance.
+
+\subsection{Goals of TLS}
+\begin{itemize}
+    \item \textbf{Encryption}: Protects data from eavesdropping by converting it into an unreadable format.
+    \item \textbf{Authentication}: Ensures the identity of the parties involved in the communication.
+    \item \textbf{Integrity}: Verifies that the data has not been altered during transmission.
+\end{itemize}
+
+\subsection{TLS Handshake Process}
+The TLS handshake is a complex process that involves multiple steps to establish a secure connection between a client and a server:
+\begin{enumerate}
+    \item \textbf{ClientHello}: The client initiates the handshake by sending a message to the server with supported cipher suites, TLS versions, and a randomly generated number.
+    \item \textbf{ServerHello}: The server responds with its chosen cipher suite, TLS version, and its own random number.
+    \item \textbf{Server Certificate}: The server sends its digital certificate to the client for authentication.
+    \item \textbf{Key Exchange}: The client and server exchange keys to establish a shared secret.
+    \item \textbf{Finished Messages}: Both parties send finished messages to verify the handshake integrity.
+\end{enumerate}
+
+\subsection{Cipher Suites}
+Cipher suites are a combination of encryption algorithms used to secure data. A typical cipher suite includes:
+\begin{itemize}
+    \item \textbf{Key Exchange Algorithm}: Determines how the keys will be exchanged (e.g., RSA, Diffie-Hellman).
+    \item \textbf{Authentication Algorithm}: Verifies the identity of the parties (e.g., RSA, DSA).
+    \item \textbf{Symmetric Encryption Algorithm}: Encrypts the data transmitted (e.g., AES, ChaCha20).
+    \item \textbf{Message Authentication Code (MAC) Algorithm}: Ensures data integrity (e.g., HMAC).
+\end{itemize}
+
+\subsection{TLS Record Protocol}
+The TLS Record Protocol ensures secure transmission of data. It divides the data into manageable blocks, encrypts them, and attaches a MAC for integrity. The process involves:
+\begin{itemize}
+    \item \textbf{Fragmentation}: Divides data into smaller blocks.
+    \item \textbf{Compression}: Optionally compresses data to save bandwidth.
+    \item \textbf{Encryption}: Encrypts the data blocks.
+    \item \textbf{MAC Attachment}: Adds a MAC to ensure data integrity.
+\end{itemize}
+
+\section{Hypertext Transfer Protocol (HTTP)}
+
+HTTP is the foundation of data communication on the World Wide Web. It is a protocol used for transmitting hypertext requests and information between clients (such as web browsers) and servers. HTTP operates as a request-response protocol in the client-server computing model. This section focuses on two primary HTTP methods: GET and POST.
+
+\subsection{HTTP GET Method}
+The GET method is used to request data from a specified resource. It is one of the most common HTTP methods and is used extensively in web browsing.
+
+\subsubsection{Characteristics of GET}
+\begin{itemize}
+    \item \textbf{Data Retrieval}: GET requests are used to retrieve data from the server.
+    \item \textbf{URL Parameters}: Data sent via GET is appended to the URL as query parameters.
+    \item \textbf{Idempotent}: Multiple identical GET requests should have the same effect as a single request.
+    \item \textbf{Safe}: GET requests do not alter the state of the server; they only request data.
+\end{itemize}
+
+\subsection{HTTP POST Method}
+The POST method is used to send data to a server to create or update a resource. Unlike GET, POST requests include the data in the body of the request, not in the URL.
+
+\subsubsection{Characteristics of POST}
+\begin{itemize}
+    \item \textbf{Data Submission}: POST requests are used to submit data to the server.
+    \item \textbf{Request Body}: Data is included in the body of the request, making it suitable for large datasets.
+    \item \textbf{Non-idempotent}: Multiple identical POST requests can have different effects.
+    \item \textbf{State Change}: POST requests can alter the state of the server (e.g., creating a new resource).
+\end{itemize}

@@ -1,0 +1,67 @@
+\documentclass{report}
+\usepackage{adjustbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{
+  left=2cm,  % Adjust the left margin
+  right=2cm  % Adjust the right margin
+}
+
+\begin{document}
+
+\begin{titlepage}
+
+    \centering
+    \includegraphics[width=1\textwidth]{UniversityLogo.jpeg}\\
+    \vspace*{1cm}
+    
+    \Huge
+    \textbf{Advanced Computer Communications Lab}
+    
+    \vspace{0.5cm}
+    \LARGE
+    Final Project
+    
+    \vspace{1cm}
+    
+    \textbf{Gabriel Klyatis\\Niv Shani}
+
+    \vspace{0.8cm}
+        
+    A project submitted for the degree of\\
+    Bachelor of Science 
+    
+    \vspace{0.8cm}
+    
+    \textbf{Supervisors:}\\
+    Prof. Patt-Shamir\\
+    Dr. Mahler
+    \vspace{0.8cm}
+    
+    \Large
+    Tel-Aviv University\\
+    Department of Electrical Engineering\\
+    August 2024
+    
+\end{titlepage}
+
+\include{Acknowledgments}
+
+\tableofcontents{}
+
+\include{Abstract}
+
+\include{Introduction}
+
+\include{TheoreticalBackground}
+
+\include{IPFragmentation}
+\include{UDP}
+\include{TCP}
+\include{TLS}
+\include{HTTP}
+\include{ListofFigures}
+
+\end{document}
